@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.instabug.weather"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.instabug.weather"

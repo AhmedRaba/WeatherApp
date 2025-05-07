@@ -1,5 +1,7 @@
 package com.instabug.weather.presentation.weather_forecast
 
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,6 +10,7 @@ import com.instabug.weather.data.repository.WeatherRepositoryImpl
 import com.instabug.weather.domain.model.WeatherData
 import com.instabug.weather.domain.usecase.GetFiveDayForecastUseCase
 
+
 class ForecastViewModel:ViewModel() {
 
     var state by mutableStateOf<List<WeatherData>>(emptyList())
@@ -15,15 +18,14 @@ class ForecastViewModel:ViewModel() {
     private val repository = WeatherRepositoryImpl()
     private val useCase = GetFiveDayForecastUseCase(repository)
 
-    init {
-        fetchForecast()
-    }
 
 
-    private fun fetchForecast() {
+    fun fetchForecast(lat: Double, lng: Double) {
         Thread{
-            val result = useCase.execute()
-            state=result
+            val result = useCase.execute(lat, lng)
+            Handler(Looper.getMainLooper()).post {
+                state = result
+            }
         }.start()
     }
 

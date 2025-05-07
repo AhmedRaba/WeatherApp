@@ -11,19 +11,19 @@ import com.instabug.weather.domain.usecase.GetCurrentWeatherUseCase
 class CurrentWeatherViewModel : ViewModel() {
 
     var state by mutableStateOf<WeatherData?>(null)
+    private set
 
     private val repository = WeatherRepositoryImpl()
     private val useCase = GetCurrentWeatherUseCase(repository)
 
-    init {
-        fetchWeather()
-    }
 
 
-    private fun fetchWeather() {
-        Thread{
-            val data = useCase.execute()
-            state=data
+    fun fetchWeather(lat: Double, lng: Double) {
+        Thread {
+            println("📡 Fetching weather for: $lat, $lng")
+            val result = useCase.execute(lat, lng)
+            println("✅ Weather fetched: $result")
+            state = result
         }.start()
     }
 

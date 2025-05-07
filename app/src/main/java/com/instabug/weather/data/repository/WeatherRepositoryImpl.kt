@@ -9,8 +9,8 @@ class WeatherRepositoryImpl: WeatherRepository {
 
     private val api=WeatherApiService()
 
-    override fun getCurrentWeather(): WeatherData? {
-        val json=api.fetchWeatherJson() ?: return null
+    override fun getCurrentWeather(lat: Double, lng: Double): WeatherData? {
+        val json=api.fetchWeatherJson(lat, lng) ?: return null
         val today=json.getJSONArray("days").getJSONObject(0)
         val dto = WeatherDto(
             date = today.getString("datetime"),
@@ -22,8 +22,8 @@ class WeatherRepositoryImpl: WeatherRepository {
 
     }
 
-    override fun getFiveDayForecast(): List<WeatherData> {
-        val json=api.fetchWeatherJson() ?: return emptyList()
+    override fun getFiveDayForecast(lat: Double, lng: Double): List<WeatherData> {
+        val json=api.fetchWeatherJson(lat, lng) ?: return emptyList()
         val daysArray = json.getJSONArray("days")
         val forecast= mutableListOf<WeatherData>()
 

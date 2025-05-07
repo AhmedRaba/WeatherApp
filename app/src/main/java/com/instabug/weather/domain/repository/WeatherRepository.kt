@@ -4,8 +4,8 @@ import com.instabug.weather.domain.model.WeatherData
 
 interface WeatherRepository {
 
-    fun getCurrentWeather(): WeatherData?
+    fun getCurrentWeather(lat: Double, lng: Double): WeatherData?
 
-    fun getFiveDayForecast(): List<WeatherData>
+    fun getFiveDayForecast(lat: Double, lng: Double): List<WeatherData>
 
 }

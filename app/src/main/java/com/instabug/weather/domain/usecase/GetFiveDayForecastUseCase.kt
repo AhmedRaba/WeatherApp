@@ -5,6 +5,6 @@ import com.instabug.weather.domain.repository.WeatherRepository
 
 class GetFiveDayForecastUseCase(private val repository: WeatherRepository)  {
 
-    fun execute(): List<WeatherData> = repository.getFiveDayForecast()
+    fun execute(lat: Double, lng: Double): List<WeatherData> = repository.getFiveDayForecast(lat, lng)
 
 }

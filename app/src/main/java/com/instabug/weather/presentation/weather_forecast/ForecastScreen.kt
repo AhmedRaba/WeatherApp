@@ -1,9 +1,12 @@
 package com.instabug.weather.presentation.weather_forecast
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,32 +16,52 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.instabug.weather.utils.LocationProvider
 
 @Composable
 fun ForecastScreen(viewModel: ForecastViewModel = ForecastViewModel()) {
-    val forecast = viewModel.state
+    val context = LocalContext.current
+    val forecastData = viewModel.state
 
-    if (forecast.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+    // Fetch the user's location when the Composable is first launched
+    LaunchedEffect(Unit) {
+        val location = LocationProvider.getLastKnownLocation(context)
+        if (location == null) {
+            println("⚠️ No location found")
+        } else {
+            val lat = location.latitude
+            val lng = location.longitude
+            viewModel.fetchForecast(lat, lng)
         }
-    } else {
-        LazyColumn(modifier = Modifier.padding(16.dp)) {
-            items(forecast) { day ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    elevation = CardDefaults.cardElevation(4.dp)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Date: ${day.date}", style = MaterialTheme.typography.titleMedium)
-                        Text("Temp: ${day.temperature}°")
-                        Text("Max: ${day.tempMax}°")
-                        Text("Min: ${day.tempMin}°")
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        if (forecastData.isEmpty()) {
+            CircularProgressIndicator()
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(forecastData) { day ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("Date: ${day.date}", style = MaterialTheme.typography.titleLarge)
+                        Spacer(Modifier.height(8.dp))
+                        Text("Temp: ${day.temperature}°", style = MaterialTheme.typography.bodyLarge)
+                        Text("Max: ${day.tempMax}°", style = MaterialTheme.typography.bodyMedium)
+                        Text("Min: ${day.tempMin}°", style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }

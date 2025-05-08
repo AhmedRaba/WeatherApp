@@ -11,6 +11,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -21,6 +23,8 @@ import com.instabug.weather.utils.LocationProvider
 fun CurrentWeatherScreen(viewModel: CurrentWeatherViewModel = CurrentWeatherViewModel()) {
     val context = LocalContext.current
     val data = viewModel.state
+    val cityName = remember { mutableStateOf<String?>(null) }
+
 
     // Fetch the user's location when the Composable is first launched
     LaunchedEffect(Unit) {
@@ -30,6 +34,9 @@ fun CurrentWeatherScreen(viewModel: CurrentWeatherViewModel = CurrentWeatherView
         } else {
             val lat = location.latitude
             val lng = location.longitude
+            LocationProvider.getCityNameFromLocation(context, location) { city ->
+                cityName.value = city
+            }
             viewModel.fetchWeather(lat, lng)
         }
     }
@@ -44,6 +51,13 @@ fun CurrentWeatherScreen(viewModel: CurrentWeatherViewModel = CurrentWeatherView
             CircularProgressIndicator()
         } else {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                cityName.value?.let {
+                    Text(
+                        text = "Weather Forecast for $it",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
                 Text("Date: ${data.date}", style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(8.dp))
                 Text("Current Temp: ${data.temperature}°", style = MaterialTheme.typography.bodyLarge)

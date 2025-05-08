@@ -16,7 +16,8 @@ class WeatherRepositoryImpl: WeatherRepository {
             date = today.getString("datetime"),
             temperature = today.getDouble("temp"),
             tempMax = today.getDouble("tempmax"),
-            tempMin = today.getDouble("tempmin")
+            tempMin = today.getDouble("tempmin"),
+            conditions = today.getString("conditions")
         )
         return dto.toDomain()
 
@@ -33,7 +34,8 @@ class WeatherRepositoryImpl: WeatherRepository {
                 date = day.getString("datetime"),
                 temperature = day.getDouble("temp"),
                 tempMax = day.getDouble("tempmax"),
-                tempMin = day.getDouble("tempmin")
+                tempMin = day.getDouble("tempmin"),
+                conditions = day.getString("conditions")
             )
             forecast.add(dto.toDomain())
 

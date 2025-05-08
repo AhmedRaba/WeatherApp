@@ -4,5 +4,6 @@ data class WeatherData(
     val date:String,
     val temperature:Double,
     val tempMax:Double,
-    val tempMin:Double
+    val tempMin:Double,
+    val conditions:String
 )

@@ -11,18 +11,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.instabug.weather.domain.model.WeatherData
 import com.instabug.weather.utils.LocationProvider
+import com.instabug.weather.utils.Resource
 
 @Composable
 fun CurrentWeatherScreen(viewModel: CurrentWeatherViewModel = CurrentWeatherViewModel()) {
     val context = LocalContext.current
-    val data = viewModel.state
+    val state by viewModel.state.collectAsState()
     val cityName = remember { mutableStateOf<String?>(null) }
 
 
@@ -47,22 +51,42 @@ fun CurrentWeatherScreen(viewModel: CurrentWeatherViewModel = CurrentWeatherView
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        if (data == null) {
-            CircularProgressIndicator()
-        } else {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                cityName.value?.let {
-                    Text(
-                        text = "Weather Forecast for $it",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(8.dp)
-                    )
+        when (state) {
+
+            Resource.Loading -> CircularProgressIndicator()
+            is Resource.Success -> {
+                val data = (state as Resource.Success<WeatherData>).data
+
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        cityName.value?.let {
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            "Current Temp: ${data.temperature}°",
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Text("Max: ${data.tempMax}°", style = MaterialTheme.typography.bodyMedium)
+                        Text("Min: ${data.tempMin}°", style = MaterialTheme.typography.bodyMedium)
+
+
+                    }
                 }
-                Text("Date: ${data.date}", style = MaterialTheme.typography.titleLarge)
-                Spacer(Modifier.height(8.dp))
-                Text("Current Temp: ${data.temperature}°", style = MaterialTheme.typography.bodyLarge)
-                Text("Max: ${data.tempMax}°", style = MaterialTheme.typography.bodyMedium)
-                Text("Min: ${data.tempMin}°", style = MaterialTheme.typography.bodyMedium)
+
+            }
+
+            is Resource.Error -> {
+                val error = (state as Resource.Error).message
+                Text(
+                    text = "❌ Failed to load weather: $error",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
         }
     }

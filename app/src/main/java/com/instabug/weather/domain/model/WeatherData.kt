@@ -5,5 +5,6 @@ data class WeatherData(
     val temperature:Double,
     val tempMax:Double,
     val tempMin:Double,
-    val conditions:String
+    val conditions:String,
+    val icon:String
 )

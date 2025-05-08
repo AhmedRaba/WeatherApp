@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
                 // Either permission is granted, proceed with getting the weather
                 setContent {
                     WeatherTheme {
-                        ForecastScreen()
+                        CurrentWeatherScreen()
                     }
                 }
             } else {
@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
                     ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
                 setContent {
                     WeatherTheme {
-                        ForecastScreen()
+                        CurrentWeatherScreen()
                     }
                 }
             }

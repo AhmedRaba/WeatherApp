@@ -19,7 +19,8 @@ class WeatherRepositoryImpl : WeatherRepository {
                 temperature = today.getDouble("temp"),
                 tempMax = today.getDouble("tempmax"),
                 tempMin = today.getDouble("tempmin"),
-                conditions = today.getString("conditions")
+                conditions = today.getString("conditions"),
+                icon = today.getString("icon")
             )
             Resource.Success(dto.toDomain())
         } catch (e: Exception) {
@@ -43,7 +44,8 @@ class WeatherRepositoryImpl : WeatherRepository {
                     temperature = day.getDouble("temp"),
                     tempMax = day.getDouble("tempmax"),
                     tempMin = day.getDouble("tempmin"),
-                    conditions = day.getString("conditions")
+                    conditions = day.getString("conditions"),
+                    icon = day.getString("icon")
                 )
                 forecast.add(dto.toDomain())
             }

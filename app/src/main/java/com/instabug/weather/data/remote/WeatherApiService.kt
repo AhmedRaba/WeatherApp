@@ -14,6 +14,8 @@ class WeatherApiService {
         val baseUrl =
             "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/$lat,$lng?unitGroup=uk&key=M4FXYQ7R83FVN7QH4JKQZ2E66&contentType=json"
 
+
+
         return try {
             val url = URL(baseUrl)
             val connection = url.openConnection() as HttpURLConnection

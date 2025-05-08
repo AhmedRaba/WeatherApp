@@ -7,7 +7,8 @@ data class WeatherDto(
     val temperature: Double,
     val tempMax: Double,
     val tempMin: Double,
-    val conditions: String
+    val conditions: String,
+    val icon:String
 ) {
     fun toDomain(): WeatherData {
         return WeatherData(
@@ -15,7 +16,8 @@ data class WeatherDto(
             temperature = temperature,
             tempMax = tempMax,
             tempMin = tempMin,
-            conditions = conditions
+            conditions = conditions,
+            icon=icon
         )
     }
 }

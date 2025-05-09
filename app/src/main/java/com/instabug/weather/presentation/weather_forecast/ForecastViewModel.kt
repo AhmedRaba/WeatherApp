@@ -1,9 +1,11 @@
 package com.instabug.weather.presentation.weather_forecast
 
+import android.app.Application
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import com.instabug.weather.data.repository.WeatherRepositoryImpl
 import com.instabug.weather.domain.model.WeatherData
@@ -14,7 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 
-class ForecastViewModel(private val context: Context) : ViewModel() {
+class ForecastViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _state = MutableStateFlow<Resource<List<WeatherData>>>(Resource.Loading)
     val state = _state.asStateFlow()
@@ -24,7 +26,7 @@ class ForecastViewModel(private val context: Context) : ViewModel() {
 
 
     fun fetchForecast(lat: Double, lng: Double) {
-        if (ConnectivityHelper.isConnectedToInternet(context)) {
+        if (ConnectivityHelper.isConnectedToInternet(getApplication())) {
             _state.value = Resource.Loading
             Thread {
                 Log.d("ForecastViewModel", "Fetching weather for: $lat, $lng")

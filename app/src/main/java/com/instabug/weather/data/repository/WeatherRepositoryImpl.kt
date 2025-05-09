@@ -14,13 +14,15 @@ class WeatherRepositoryImpl : WeatherRepository {
         return try {
             val json = api.fetchWeatherJson(lat, lng) ?: return Resource.Error("No data")
             val today = json.getJSONArray("days").getJSONObject(0)
+            val currentHourIcon = api.getCurrentHourIcon(lat, lng)
+
             val dto = WeatherDto(
                 date = today.getString("datetime"),
                 temperature = today.getDouble("temp"),
                 tempMax = today.getDouble("tempmax"),
                 tempMin = today.getDouble("tempmin"),
                 conditions = today.getString("conditions"),
-                icon = today.getString("icon")
+                icon = currentHourIcon ?: today.getString("icon")
             )
             Resource.Success(dto.toDomain())
         } catch (e: Exception) {
@@ -31,32 +33,33 @@ class WeatherRepositoryImpl : WeatherRepository {
 
     override fun getFiveDayForecast(lat: Double, lng: Double): Resource<List<WeatherData>> {
         return try {
-
-
             val json = api.fetchWeatherJson(lat, lng) ?: return Resource.Error("No data")
             val daysArray = json.getJSONArray("days")
             val forecast = mutableListOf<WeatherData>()
 
             for (i in 0 until minOf(5, daysArray.length())) {
                 val day = daysArray.getJSONObject(i)
+
+                val icon = if (i == 0) {
+                    api.getCurrentHourIcon(lat, lng) ?: day.getString("icon")
+                } else {
+                    day.getString("icon")
+                }
+
                 val dto = WeatherDto(
                     date = day.getString("datetime"),
                     temperature = day.getDouble("temp"),
                     tempMax = day.getDouble("tempmax"),
                     tempMin = day.getDouble("tempmin"),
                     conditions = day.getString("conditions"),
-                    icon = day.getString("icon")
+                    icon = icon
                 )
                 forecast.add(dto.toDomain())
             }
-
             Resource.Success(forecast)
 
         } catch (e: Exception) {
             return Resource.Error(e.message ?: "Unknown error")
         }
-
     }
-
-
 }

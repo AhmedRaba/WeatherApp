@@ -8,29 +8,51 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.app.ActivityCompat
 import android.Manifest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
+import androidx.navigation.compose.rememberNavController
 import com.instabug.weather.presentation.current_weather.CurrentWeatherScreen
+import com.instabug.weather.presentation.navigation.NavGraph
 import com.instabug.weather.presentation.weather_forecast.ForecastScreen
 import com.instabug.weather.ui.theme.WeatherTheme
+import java.util.Calendar
 
 class MainActivity : ComponentActivity() {
 
+    val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+    val isDaytime = currentHour in 6..18
+    val backgroundDrawable = if (isDaytime) R.drawable.iv_day else R.drawable.iv_night
+
+
+
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            // Check if either permission is granted
             val isLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
                     permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
 
             if (isLocationGranted) {
-                // Either permission is granted, proceed with getting the weather
                 setContent {
                     WeatherTheme {
-                        ForecastScreen()
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            // Background image
+                            Image(
+                                painter = painterResource(id = R.drawable.iv_day), // Or dynamic image
+                                contentDescription = "Background",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                            // Navigation graph
+                            NavGraph(navController = rememberNavController())
+                        }
                     }
                 }
             } else {
-                // Handle the case where neither permission is granted
                 setContent {
                     WeatherTheme {
                         Text("Location permission is required to fetch weather data.")
@@ -41,21 +63,24 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge()
-
-        // Check if either permission is already granted
         when {
-            // If either permission is already granted, proceed with fetching weather
             ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                     ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
                 setContent {
                     WeatherTheme {
-                        ForecastScreen()
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Image(
+                                painter = painterResource(id = backgroundDrawable),
+                                contentDescription = "Background",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                            NavGraph(navController = rememberNavController())
+                        }
                     }
                 }
             }
-            // If neither permission is granted, request both permissions
             else -> {
                 requestPermissionLauncher.launch(
                     arrayOf(

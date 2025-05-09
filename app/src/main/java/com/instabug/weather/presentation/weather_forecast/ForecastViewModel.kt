@@ -17,38 +17,27 @@ import kotlinx.coroutines.flow.asStateFlow
 
 
 class ForecastViewModel(application: Application) : AndroidViewModel(application) {
-
     private val _state = MutableStateFlow<Resource<List<WeatherData>>>(Resource.Loading)
     val state = _state.asStateFlow()
 
-    private val repository = WeatherRepositoryImpl()
+    private val repository = WeatherRepositoryImpl(getApplication())
     private val useCase = GetFiveDayForecastUseCase(repository)
 
-
     fun fetchForecast(lat: Double, lng: Double) {
-        if (ConnectivityHelper.isConnectedToInternet(getApplication())) {
-            _state.value = Resource.Loading
-            Thread {
-                Log.d("ForecastViewModel", "Fetching weather for: $lat, $lng")
-                try {
-                    val result = useCase.execute(lat, lng)
-                    Log.d("ForecastViewModel", "Weather fetched: $result")
+        _state.value = Resource.Loading
 
-                    Handler(Looper.getMainLooper()).post {
-                        _state.value = result
-                    }
-                } catch (e: Exception) {
-                    Log.e("ForecastViewModel", "Error fetching weather: ${e.message}", e)
-
-                    Handler(Looper.getMainLooper()).post {
-                        _state.value = Resource.Error(e.message ?: "Unknown error")
-                    }
+        Thread {
+            try {
+                // Let the useCase handle both fresh/cached data
+                val result = useCase.execute(lat, lng)
+                Handler(Looper.getMainLooper()).post {
+                    _state.value = result
                 }
-            }.start()
-        } else {
-            _state.value = Resource.Error("No internet connection")
-        }
-
+            } catch (e: Exception) {
+                Handler(Looper.getMainLooper()).post {
+                    _state.value = Resource.Error(e.message ?: "Unknown error")
+                }
+            }
+        }.start()
     }
-
 }

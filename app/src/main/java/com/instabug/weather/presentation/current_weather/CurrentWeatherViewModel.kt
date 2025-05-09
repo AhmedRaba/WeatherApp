@@ -18,12 +18,19 @@ class CurrentWeatherViewModel(application: Application) : AndroidViewModel(appli
     private val _state = MutableStateFlow<Resource<WeatherData>>(Resource.Loading)
     val state = _state.asStateFlow()
 
-    private val repository = WeatherRepositoryImpl()
+    private val repository = WeatherRepositoryImpl(getApplication())
     private val useCase = GetCurrentWeatherUseCase(repository)
 
     fun fetchWeather(lat: Double, lng: Double) {
+        _state.value = Resource.Loading
+
+        val cachedData = repository.getWeatherDataFromCache(lat, lng)
+        if (cachedData != null) {
+            _state.value = Resource.Success(cachedData.toDomain())
+            return
+        }
+
         if (ConnectivityHelper.isConnectedToInternet(getApplication())) {
-            _state.value = Resource.Loading
             Thread {
                 try {
                     val result = useCase.execute(lat, lng)
@@ -33,7 +40,7 @@ class CurrentWeatherViewModel(application: Application) : AndroidViewModel(appli
                 }
             }.start()
         } else {
-            _state.value = Resource.Error("No internet connection")
+            _state.value = Resource.Error("No internet connection and no cached data")
         }
     }
 }

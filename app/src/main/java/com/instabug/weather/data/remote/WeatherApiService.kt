@@ -13,7 +13,6 @@ class WeatherApiService {
 
         val baseUrl =
             "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/$lat,$lng?unitGroup=uk&key=M4FXYQ7R83FVN7QH4JKQZ2E66&contentType=json"
-
         return try {
             val url = URL(baseUrl)
             val connection = url.openConnection() as HttpURLConnection
@@ -31,12 +30,9 @@ class WeatherApiService {
 
     fun getCurrentHourIcon(lat: Double, lng: Double): String? {
         val jsonObject = fetchWeatherJson(lat, lng)
-
-
         val hoursArray = jsonObject?.getJSONArray("days")?.getJSONObject(0)?.getJSONArray("hours")
 
         if (hoursArray != null) {
-
             val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
             for (i in 0 until hoursArray.length()) {
                 val hourData = hoursArray.getJSONObject(i)
